@@ -1,16 +1,22 @@
 import { Person } from '../types';
 import { PersonLink } from './PersonLink';
-import { useState } from 'react';
 import classNames from 'classnames';
+import { useParams } from 'react-router-dom';
 
 type Props = {
   people: Person[];
 };
 
 export const PeopleTable: React.FC<Props> = ({ people }) => {
-  const [selectedPersonSlug, setSelectedPersonSlug] = useState<string | null>(
-    null,
-  );
+  const { slug } = useParams();
+
+  const findPersonByName = (name: string | null): Person | undefined => {
+    if (!name) {
+return undefined;
+}
+
+    return people.find(pers => pers.name === name);
+  };
 
   return (
     <table
@@ -29,42 +35,46 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
       </thead>
 
       <tbody>
-        {people.map(
-          ({ name, sex, born, died, fatherName, motherName, slug }) => (
+        {people.map(person => {
+          const mother = findPersonByName(person.motherName);
+          const father = findPersonByName(person.fatherName);
+
+          return (
             <tr
               data-cy="person"
-              key={slug}
+              key={person.slug}
               className={classNames({
-                'has-background-warning': slug === selectedPersonSlug,
+                'has-background-warning': person.slug === slug,
               })}
             >
               <td>
-                <PersonLink
-                  name={name} 
-                  people={people}
-                  onSelectPerson={setSelectedPersonSlug}
-                />
+                <PersonLink person={person} />
               </td>
-              <td>{sex}</td>
-              <td>{born}</td>
-              <td>{died}</td>
+              <td>{person.sex}</td>
+              <td>{person.born}</td>
+              <td>{person.died}</td>
               <td>
-                <PersonLink 
-                  name={motherName || null} 
-                  people={people}
-                  onSelectPerson={setSelectedPersonSlug}
-                />
+                {!person.motherName && <span>-</span>}
+
+                {mother ? (
+                  <PersonLink person={mother} />
+                ) : (
+                  <span>{person.motherName}</span>
+                )}
               </td>
               <td>
-                <PersonLink 
-                  name={fatherName || null} 
-                  people={people}
-                  onSelectPerson={setSelectedPersonSlug}
-                />
+                {!person.fatherName && <span>-</span>}
+
+                {father ? (
+                  <PersonLink person={father} />
+                ) : (
+                  <span>{person.fatherName}</span>
+                )}
               </td>
             </tr>
-          ),
-        )}
+          )
+          })
+        }
       </tbody>
     </table>
   );
