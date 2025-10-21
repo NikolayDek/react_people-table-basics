@@ -1,5 +1,4 @@
 import { Person } from '../types';
-import { Link } from 'react-router-dom';
 import { PersonLink } from './PersonLink';
 import { useState } from 'react';
 import classNames from 'classnames';
@@ -31,15 +30,7 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
 
       <tbody>
         {people.map(
-          ({
-            name,
-            sex,
-            born,
-            died,
-            fatherName,
-            motherName,
-            slug,
-          }) => (
+          ({ name, sex, born, died, fatherName, motherName, slug }) => (
             <tr
               data-cy="person"
               key={slug}
@@ -48,23 +39,28 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
               })}
             >
               <td>
-                <Link
-                  to={`/people/${slug}`}
-                  className={sex === 'f' ? 'has-text-danger' : ''}
-                  onClick={() => setSelectedPersonSlug(slug)}
-                >
-                  {name}
-                </Link>
+                <PersonLink
+                  name={name} 
+                  people={people}
+                  onSelectPerson={setSelectedPersonSlug}
+                />
               </td>
-
               <td>{sex}</td>
               <td>{born}</td>
               <td>{died}</td>
               <td>
-                <PersonLink name={motherName || null} people={people} />
+                <PersonLink 
+                  name={motherName || null} 
+                  people={people}
+                  onSelectPerson={setSelectedPersonSlug}
+                />
               </td>
               <td>
-                <PersonLink name={fatherName || null} people={people} />
+                <PersonLink 
+                  name={fatherName || null} 
+                  people={people}
+                  onSelectPerson={setSelectedPersonSlug}
+                />
               </td>
             </tr>
           ),
